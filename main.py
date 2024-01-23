@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import requests
 from bs4 import BeautifulSoup
 import math
-from multichat.asgi import application
+#from multichat.asgi import application
 #python -m uvicorn main:app --reload
 
 app = FastAPI()
