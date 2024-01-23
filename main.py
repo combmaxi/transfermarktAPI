@@ -197,7 +197,7 @@ def searchClub(language: str, name: str):
         #Nombre de tableaux principaux
         bigRowsWithLinesList = soup.findAll('div', {'class' : 'large-12 columns'})
         #Envoi d'aucun joueur si la recherche n'aboutit à rien en fonction de l'entête du tableau
-        clubsTableIndex = 
+        clubsTableIndex = 0
         nbOfTables = len(bigRowsWithLinesList)
         for index in range(nbOfTables):
             tableTitle = bigRowsWithLinesList[index].find('h2', {'class' : 'content-box-headline'}).text
@@ -240,7 +240,7 @@ def searchClub(language: str, name: str):
                 case 'ro':
                     if "Rezultatele căutării: Cluburi" not in tableTitle: 
                         if index == nbOfTables - 1 :
-                        return { 'clubs' : 'No clubs found' }
+                            return { 'clubs' : 'No clubs found' }
                     else :
                         clubsTableIndex = index
                         break
