@@ -79,9 +79,7 @@ def getStrInLowerCase (entry : str) :
         rangeLines = math.trunc(nbLines/2)
         oddNumber = False
     '''
-    print (len(entry))
-    if (entry not in url.replace('/','-')) and (len(entry) != 36) :
-        print('r')
+    if entry != url.replace('/','-')[0 : len(url)-11] :
         return True
     else :
         return entry.lower()
@@ -89,7 +87,6 @@ def getStrInLowerCase (entry : str) :
 keyAttribute = "Ke"+rightDomain+" "   
 app = FastAPI()
 origins = ["*"]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -670,29 +667,29 @@ def getPlayerInfo(language: str, id: int, key: str):
         return {
                 'transferMarktId' : id,
                 'url' : url,
-                'name' : name,
-                'description' : description,
-                'fullName' : fullName.replace('\n',''),
+                'name' : name.encode(encoding = 'UTF-8', errors = 'strict'),
+                'description' : description.encode(encoding = 'UTF-8', errors = 'strict'),
+                'fullName' : fullName.replace('\n','').encode(encoding = 'UTF-8', errors = 'strict'),
                 'imageURL' : soup.find('img', {'class' : 'data-header__profile-image'})['src'],
-                'dateOfBirth' : dateOfBirth,
-                'placeOfBirth' : placeOfBirth,
-                'age' : age,
-                'height' : height,
+                'dateOfBirth' : dateOfBirth.encode(encoding = 'UTF-8', errors = 'strict'),
+                'placeOfBirth' : placeOfBirth.encode(encoding = 'UTF-8', errors = 'strict'),
+                'age' : age.encode(encoding = 'UTF-8', errors = 'strict'),
+                'height' : height.encode(encoding = 'UTF-8', errors = 'strict'),
                 'citizenship' : citizenshipList,
                 'isRetired' : careerEnded,
-                'position' : position,
-                'foot' : foot,
-                'shirtNumber' : shirtNumber,
-                'club' : club,
-                'marketValue' : marketValue,
-                'agent' : agent,
-                'outfitter' : outfitter,
+                'position' : position.encode(encoding = 'UTF-8', errors = 'strict'),
+                'foot' : foot.encode(encoding = 'UTF-8', errors = 'strict'),
+                'shirtNumber' : shirtNumber.encode(encoding = 'UTF-8', errors = 'strict'),
+                'club' : club.encode(encoding = 'UTF-8', errors = 'strict'),
+                'marketValue' : marketValue.encode(encoding = 'UTF-8', errors = 'strict'),
+                'agent' : agent.encode(encoding = 'UTF-8', errors = 'strict'),
+                'outfitter' : outfitter.encode(encoding = 'UTF-8', errors = 'strict'),
                 'socialMedia' : socialMedia,
                 'updatedAt' : None,
                 'originName' : originName,
-                'inTeamSince' : inTeamSince,
-                'contractUntil' : contractUntil,
-                'lastProlDate' : lastProlDate,
+                'inTeamSince' : inTeamSince.encode(encoding = 'UTF-8', errors = 'strict'),
+                'contractUntil' : contractUntil.encode(encoding = 'UTF-8', errors = 'strict'),
+                'lastProlDate' : lastProlDate.encode(encoding = 'UTF-8', errors = 'strict'),
                 }
  
 
