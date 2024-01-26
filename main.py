@@ -79,7 +79,9 @@ def getStrInLowerCase (entry : str) :
         rangeLines = math.trunc(nbLines/2)
         oddNumber = False
     '''
-    if entry not in url.replace('/','-') and len(entry) == 36:
+    print (len(entry))
+    if (entry not in url.replace('/','-')) and (len(entry) != 36) :
+        print('r')
         return True
     else :
         return entry.lower()
@@ -317,7 +319,7 @@ def getPlayerInfo(language: str, id: int, key: str):
     url = domain + '/spieler/profil/spieler/' + str(id)
     #Brouillage des requêtes
     userAgent = getNewUserAgent()
-    headers = {'Content-Type': 'text/html', 'user-agent': userAgent, 'Access-Control-Allow-Origin': '*'}
+    headers = {'Content-Type': 'text/html; charset=utf-8', 'user-agent': userAgent, 'Access-Control-Allow-Origin': '*'}
     response = requests.get(url, headers=headers)
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
