@@ -100,7 +100,7 @@ def accueil():
 
 
 @app.get("/searchPlayer/language={language}&name={name}&key={key}")
-def generer_nombre(language: str, name: str, key: str):
+def searchPlayer(language: str, name: str, key: str):
     """
     Cette fonction donne le résultat de recherche des joueurs masculins existants sur TransfertMarkt sur la première page en fonction de la langue et du nom du joueur renseignés. La langue doit être les 2 lettres de l'extension de domaine associée, et l'ID doit être sous forme numérique.
     """ 
@@ -316,7 +316,8 @@ def getPlayerInfo(language: str, id: int, key: str):
     url = domain + '/spieler/profil/spieler/' + str(id)
     #Brouillage des requêtes
     userAgent = getNewUserAgent()
-    headers = {'Content-Type': 'text/html; charset=utf-8', 'user-agent': userAgent, 'Access-Control-Allow-Origin': '*'}
+    #'Content-Type': 'text/html; charset=utf-8',
+    headers = { 'user-agent': userAgent, 'content-encoding': 'br' ,'content-type': 'application/json' , 'vary': 'Accept-Encoding'}
     response = requests.get(url, headers=headers)
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
