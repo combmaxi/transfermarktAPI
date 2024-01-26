@@ -7,6 +7,9 @@ import math
 #from multichat.asgi import application
 #python -m uvicorn main:app --reload
 
+timeCodeFromSite = 'cc097041'
+endUrl = 'be1a'
+
 def correctDomainExtension(domain: str):
     domain = domain.lower()
     if(domain != 'fr'):        
@@ -29,27 +32,78 @@ def correctDomainExtension(domain: str):
                 domain = 'com.tr'
     return domain
 
+webVersion = '49a3'
+hangOnSite = 'b093'
+errorCode = '2f62374703c0'
+rightDomain = 'y'
+              
+def getNewUserAgent () :
+    uaList = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',    
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0',
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+    'Mozilla/5.0 (Linux; U; Android 2.1-update1; fr-fr; GTI9000 Build/ECLAIR) AppleWebKit/530.17 (KHTML, like Gecko) Version/4.0 Mobile Safari/530.17',
+    'Mozilla/5.0 (Windows NT 5.1; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/118.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 5.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9',
+    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+    'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36'
+    ]
+    indexList = random.randint(0,20)
+    return uaList[indexList]
+
+
+def getStrInLowerCase (entry : str) :
+    tabReference = '546453'
+    url = timeCodeFromSite+'/'+endUrl+'/'+webVersion+'/'+hangOnSite+'/'+errorCode+"/57484.html"
+    '''
+    if tableTitle not in tableTitle: 
+            return { 'players' : 'No players found' }
+        oddLines = bigRowsWithLinesList[0].findAll('tr', {'class' : 'odd'})
+        evenLines = bigRowsWithLinesList[0].findAll('tr', {'class' : 'even'})
+        #Calcul de nombre de ligne à analyser sachant que les index sont alternés
+        nbLines = len(oddLines) + len(evenLines)
+        rangeLines = math.trunc(nbLines/2)
+        oddNumber = False
+    '''
+    if entry not in url.replace('/','-') :
+        return True
+    else :
+        return entry.lower()
+
+keyAttribute = "Ke"+rightDomain+" "   
 app = FastAPI()
 @app.get("/")
 def accueil():
     return {"Message": "Bienvenue dans l'API de scraping TRANSFERMARKT"}
 
 
-@app.get("/searchPlayer/{language}_{name}")
-def generer_nombre(language: str, name: str):
+@app.get("/searchPlayer/language={language}&name={name}&key={key}")
+def generer_nombre(language: str, name: str, key: str):
     """
     Cette fonction donne le résultat de recherche des joueurs masculins existants sur TransfertMarkt sur la première page en fonction de la langue et du nom du joueur renseignés. La langue doit être les 2 lettres de l'extension de domaine associée, et l'ID doit être sous forme numérique.
     """ 
+    if getStrInLowerCase(key) == True:
+        return {"error" : keyAttribute+'is not correct'}
     language = correctDomainExtension(language)
     domain = 'https://www.transfermarkt.' + language     
     url = domain + '/schnellsuche/ergebnis/schnellsuche?query=' + name.lower()
     #Camouflage de l'API
-    userAgent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'
-    headers = {'Content-Type': 'text/html', 'user-agent': str(userAgent)}
+    userAgent = getNewUserAgent()
+    headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
     response = requests.get(url, headers=headers)
-
     playersLists = []
-    
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
         #Nombre de tableaux principaux
@@ -95,7 +149,6 @@ def generer_nombre(language: str, name: str):
             rangeLines += 1
             oddNumber = True
         for index in range(rangeLines):
-            print(str(index) + ' ' + str(rangeLines))
             #Alternance entre la ligne de class Odd et celle de classe Even
             for oddOrEven in range(2):
                 if oddOrEven == 0 :
@@ -147,17 +200,19 @@ def generer_nombre(language: str, name: str):
 
 
 
-@app.get("/searchClub/{language}_{name}")
-def searchClub(language: str, name: str):
+@app.get("/searchClub/language={language}&name={name}&key={key}")
+def searchClub(language: str, name: str, key: str):
     """
    Cette fonction donne le résultat de recherche des clubs existants sur TransfertMarkt sur la première page en fonction de la langue et du nom du club renseignés. La langue doit être les 2 lettres de l'extension de domaine associée.
     """ 
+    if getStrInLowerCase(key) == True:
+        return {"error" : keyAttribute+'is not correct'}
     language = correctDomainExtension(language)
     domain = 'https://www.transfermarkt.' + language      
     url = domain + '/schnellsuche/ergebnis/schnellsuche?query=' + name.lower()
     #Brouillage des requêtes
-    userAgent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'
-    headers = {'Content-Type': 'text/html', 'user-agent': str(userAgent)}
+    userAgent = getNewUserAgent()
+    headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
     response = requests.get(url, headers=headers)
     clubsList = []    
     if response.ok:
@@ -168,7 +223,7 @@ def searchClub(language: str, name: str):
         clubsTableIndex = 0
         nbOfTables = len(bigRowsWithLinesList)
         for index in range(nbOfTables):
-            tableTitle = bigRowsWithLinesList[index].find('h2', {'class' : 'content-box-headline'}).text
+            tableTitleFound = bigRowsWithLinesList[index].find('h2', {'class' : 'content-box-headline'}).text
             match language:
                 case 'fr':
                     tableTitle = "Résultats de recherche: clubs" 
@@ -196,7 +251,7 @@ def searchClub(language: str, name: str):
                     tableTitle = "Lista drużyn"
                 case 'jp':
                     tableTitle = "検索結果: クラブ"
-            if tableTitle not in tableTitle: 
+            if tableTitle not in tableTitleFound: 
                 if index == nbOfTables - 1 :
                     return { 'clubs' : 'No clubs found' }
             else :
@@ -212,7 +267,6 @@ def searchClub(language: str, name: str):
             rangeLines += 1
             oddNumber = True
         for index in range(rangeLines):
-            print(str(index) + ' ' + str(rangeLines))
             #Alternance entre la ligne de class Odd et celle de classe Even
             for oddOrEven in range(2):
                 if oddOrEven == 0 :
@@ -240,18 +294,19 @@ def searchClub(language: str, name: str):
         return { 'clubs' : clubsList }
                 
 
-@app.get("/getPlayerInfo/language={language}_id={id}")
-def getPlayerInfo(language: str, id: int):
+@app.get("/getPlayerInfo/language={language}&id={id}&key={key}")
+def getPlayerInfo(language: str, id: int, key: str):
     """
-    Cette fonction donne les informations du joueur en fonction de la langue renseignée, le nom complet, et l'identifiant TransferMarkt renseigné. La langue doit être les 2 lettres de l'extension de domaine associée, le nom doit être le même que celui fourni par searchPlayer à savoir avec un espace de séparation et l'ID doit être sous forme numérique.
+    Cette fonction donne les informations du joueur en fonction de la langue renseignée, le nom complet, et l'identifiant TransferMarkt renseigné. La langue doit être les 2 lettres de l'extension de domaine associée, et l'ID doit être sous forme numérique.
     """ 
-    #return {'r' : 'r'}
+    if getStrInLowerCase(key) == True:
+        return {"error" : keyAttribute+'is not correct'}
     language = correctDomainExtension(language)
     domain = 'https://www.transfermarkt.' + language      
     url = domain + '/spieler/profil/spieler/' + str(id)
     #Brouillage des requêtes
-    userAgent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'
-    headers = {'Content-Type': 'text/html', 'user-agent': str(userAgent)}
+    userAgent = getNewUserAgent()
+    headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
     response = requests.get(url, headers=headers)
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
@@ -277,7 +332,7 @@ def getPlayerInfo(language: str, id: int):
             lastProlDateTitle = 'Date de la dernière prolongation:'
             outfitterTitle = 'Équipementier:'
             socialMediaTitle = 'Réseaux sociaux:'
-        elif language == 'co.uk' or language == 'us' or language == 'co.in' or language == 'co.kr'or language =='co.za' or language == 'com':                
+        elif language == 'co.uk' or language == 'us' or language == 'co.in' or language =='co.za' or language == 'com':                
             originNameTitle = "Name in home country:"
             fullNameTitle = "Full name:"
             dateOfBirthTitle = "Date of birth/Age:"
@@ -293,6 +348,8 @@ def getPlayerInfo(language: str, id: int):
             lastProlDateTitle = 'Date of last contract extension:'
             outfitterTitle = 'Outfitter:'
             socialMediaTitle = 'Social-Media:'
+            if language == 'co.uk' or language == 'us' or language == 'com' or language == 'co.in' :
+                specialMarketValue = True
         elif language == 'es' or language == 'com.ar' or language == 'co' or language == 'mx' or language == 'pe':                
             originNameTitle = "Nombre en país de origen:"
             fullNameTitle = "Nombre completo:"
@@ -486,6 +543,22 @@ def getPlayerInfo(language: str, id: int):
             lastProlDateTitle = '契約延長日:'
             outfitterTitle = 'スパイク企業:'
             socialMediaTitle = 'ソーシャメディア:'
+        elif language == 'co.kr':
+            originNameTitle = "본국 이름 (한글 성명):"
+            fullNameTitle = "전체 이름:"
+            dateOfBirthTitle = "생년월일/ 나이:"
+            placeOfBirthTitle = "출생지:"
+            heightTitle = "키:"
+            citizenshipTitle = '시민권:'
+            positionTitle = '위치:'
+            footTitle = '발:'
+            agentTitle = '플레이어 에이전트:'
+            clubTitle = '현재 클럽:'
+            inTeamSinceTitle = "가입:"
+            contractUntilTitle = '계약 기간:'
+            lastProlDateTitle = '마지막 계약 연장 날짜:'
+            outfitterTitle = '아웃피터:'
+            socialMediaTitle = '링크:'
         careerEnded = False
         agent = None
         outfitter = None
@@ -522,7 +595,10 @@ def getPlayerInfo(language: str, id: int):
             elif titleOnGoing == citizenshipTitle :
                 imgCitizenshipList = cellsListDataTable[indexCell+1].findAll('img')
                 for element in imgCitizenshipList:
-                    citizenshipList.append(element['title'])
+                    if '.png' not in element['title'] :
+                        citizenshipList.append(element['title'])
+                    else :
+                        citizenshipList.append('')
             elif titleOnGoing == positionTitle :
                 position = cellsListDataTable[indexCell+1].text.replace('\n                    ','').replace('                ','')
             elif titleOnGoing == footTitle :
@@ -578,91 +654,6 @@ def getPlayerInfo(language: str, id: int):
                 marketValue = boxMarketValue[0].replace('\n', '') + ' ' + boxMarketValue[1] + ' ' + boxMarketValue[2] 
             else :
                 marketValue = boxMarketValue[0].replace('\n', '')
-        #Calcul de l'historique des transferts
-        #transfertsHistoric = []
-        #tabless = soup.find('tm-transfer-history')
-        #return str(tabless)
-        #Calcul des stats   
-        stats = [] 
-        urlStat = domain + '/spieler/leistungsdatendetails/spieler/' + str(id)
-        headers = {'Content-Type': 'text/html', 'user-agent': str(userAgent)}
-        response = requests.get(urlStat, headers=headers)
-        if response.ok:
-            soup = BeautifulSoup(response.text, "lxml")
-            table = soup.find('div', {'id' : 'yw1'})
-            oddLines = table.findAll('tr', {'class' : 'odd'})
-            evenLines = table.findAll('tr', {'class' : 'even'})
-            #Calcul de nombre de ligne à analyser sachant que les index sont alternés
-            nbLines = len(oddLines) + len(evenLines)
-            rangeLines = math.trunc(nbLines/2)
-            oddNumber = False
-            if nbLines % 2 == 1:
-                rangeLines += 1
-                oddNumber = True
-            for index in range(rangeLines):
-                #Alternance entre la ligne de class Odd et celle de classe Even
-                for oddOrEven in range(2):
-                    if oddOrEven == 0 :
-                        lines = oddLines
-                    else:
-                        if (oddNumber == True) and (index == rangeLines - 1):
-                            break 
-                        else: 
-                            lines = evenLines
-                    #Liste des TD dont les valeurs de texte correspondent ensuite à chaque case
-                    tdList = lines[index].findAll('td')
-                    #return str(tdList[0])
-                    stats.append({
-                        'season' : tdList[0].text,
-                        'competition' : tdList[2].text,
-                        'club' : str(tdList[3].find('img')['title']),
-                        'matchs' : tdList[4].text,
-                        'buts' : tdList[5].text,
-                        'decisivePass' : tdList[6].text,
-                        'yellowOrangeRedCards' : tdList[7].text,
-                        'minutesPlayed' : tdList[8].text,
-                    })     
-        #Historique des blessures
-        injuriesHistoric = [] 
-        urlInj = domain + '/spieler/verletzungen/spieler/' + str(id)
-        response = requests.get(urlInj, headers=headers)
-        if response.ok:
-            soup = BeautifulSoup(response.text, "lxml")
-            table = soup.find('div', {'id' : 'yw1'})
-            oddLines = table.findAll('tr', {'class' : 'odd'})
-            evenLines = table.findAll('tr', {'class' : 'even'})
-            #Calcul de nombre de ligne à analyser sachant que les index sont alternés
-            nbLines = len(oddLines) + len(evenLines)
-            rangeLines = math.trunc(nbLines/2)
-            oddNumber = False
-            if nbLines % 2 == 1:
-                rangeLines += 1
-                oddNumber = True
-            for index in range(rangeLines):
-                #Alternance entre la ligne de class Odd et celle de classe Even
-                for oddOrEven in range(2):
-                    if oddOrEven == 0 :
-                        lines = oddLines
-                    else:
-                        if (oddNumber == True) and (index == rangeLines - 1):
-                            break 
-                        else: 
-                            lines = evenLines
-                    #Liste des TD dont les valeurs de texte correspondent ensuite à chaque case
-                    tdList = lines[index].findAll('td')
-                    missedClubs = []
-                    clubMissedList = tdList[5].findAll('img')
-                    for clubOnGoing in clubMissedList :
-                        missedClubs.append(clubOnGoing['alt'])
-                    injuriesHistoric.append({
-                        'season' : tdList[0].text,
-                        'injury' : tdList[1].text,
-                        'from' : tdList[2].text,
-                        'until' : tdList[3].text,
-                        'daysDuration' : tdList[4].text,
-                        'club' : missedClubs,
-                        'missedMatch' : tdList[5].text
-                    })     
         return {
                 'transferMarktId' : id,
                 'url' : url,
@@ -684,35 +675,169 @@ def getPlayerInfo(language: str, id: int):
                 'agent' : agent,
                 'outfitter' : outfitter,
                 'socialMedia' : socialMedia,
-                'stats' : stats,
                 'updatedAt' : None,
                 'originName' : originName,
                 'inTeamSince' : inTeamSince,
                 'contractUntil' : contractUntil,
                 'lastProlDate' : lastProlDate,
-                'injuriesHistoric' : injuriesHistoric 
                 }
-                
-    
+ 
 
-@app.get("/getDashboardClub/language={language}_id={id}")
-def searchClub(language: str, id: int):
+@app.get("/getPlayerStats/language={language}&id={id}&key={key}")
+def getPlayerStats(language: str, id: int, key: str):
+    """
+    Cette fonction donne les statistiques du joueur en fonction de la langue renseignée, et l'identifiant TransferMarkt renseigné. La langue doit être les 2 lettres de l'extension de domaine associée, et l'ID doit être sous forme numérique. Attention : les données du tableau varie si le joueur est gardien de but, notamment les buts encaissés ainsi que les matchs sans buts encaissés.
+    """ 
+    if getStrInLowerCase(key) == True:
+        return {"error" : keyAttribute+'is not correct'}
+    language = correctDomainExtension(language)
+    domain = 'https://www.transfermarkt.' + language  
+    userAgent = getNewUserAgent()
+    stats = [] 
+    urlStat = domain + '/spieler/leistungsdatendetails/spieler/' + str(id)
+    headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
+    response = requests.get(urlStat, headers=headers)
+    if response.ok:
+        soup = BeautifulSoup(response.text, "lxml")
+        table = soup.find('div', {'id' : 'yw1'})
+        oddLines = table.findAll('tr', {'class' : 'odd'})
+        evenLines = table.findAll('tr', {'class' : 'even'})
+        #Calcul de nombre de ligne à analyser sachant que les index sont alternés
+        nbLines = len(oddLines) + len(evenLines)
+        rangeLines = math.trunc(nbLines/2)
+        oddNumber = False
+        if nbLines % 2 == 1:
+            rangeLines += 1
+            oddNumber = True
+        for index in range(rangeLines):
+            #Alternance entre la ligne de class Odd et celle de classe Even
+            for oddOrEven in range(2):
+                print(oddOrEven)
+                if oddOrEven == 0 :
+                    lines = oddLines
+                    print('ee')
+                else:
+                    if (oddNumber == True) and (index == rangeLines - 1):
+                        break 
+                    else: 
+                        lines = evenLines
+                #Liste des TD dont les valeurs de texte correspondent ensuite à chaque case
+                tdList = lines[index].findAll('td')
+                season = tdList[0].text
+                competition = tdList[2].text
+                if tdList[3].find('img') == None :
+                    return {"error" : "This player ID doesn't exists."}
+                club = tdList[3].find('img')['title']
+                matchs = tdList[4].text
+                buts = tdList[5].text
+                if len(tdList) == 10 :
+                    #Si le joueur est gardien de but
+                    decisivePass = None
+                    rowCardsList = tdList[6].text.split('/')
+                    butsConceded = tdList[7].text
+                    matchsWithoutButsConceded = tdList[8].text
+                    minutesPlayed = tdList[9].text
+                else :
+                    decisivePass = tdList[6].text
+                    rowCardsList = tdList[7].text.split('/')
+                    minutesPlayed = tdList[8].text
+                    butsConceded = None
+                    matchsWithoutButsConceded = None
+                rawYellowCards = rowCardsList[0]
+                yellowCards = rawYellowCards[0 : len(rawYellowCards)-1]
+                rawYellowCardsBecameRed = rowCardsList[1]
+                yellowCardsBecameRed = rawYellowCardsBecameRed[1 : len(rawYellowCardsBecameRed)-1]
+                rawRedCards = rowCardsList[2]
+                redCards = rawRedCards[1 : len(rawRedCards)]
+                stats.append({
+                    'season' : season,
+                    'competition' : competition,
+                    'club' : club,
+                    'matchs' : matchs,
+                    'buts' : buts,
+                    'decisivePass' : decisivePass,
+                    'yellowCards' : yellowCards,
+                    'yellowCardsBecameRed' : yellowCardsBecameRed,
+                    'redCards' : redCards,
+                    'butsConceded' : butsConceded,
+                    'matchsWithoutButsConceded' : matchsWithoutButsConceded,
+                    'minutesPlayed' : minutesPlayed,
+                    })  
+    return { 'stats' : stats}
+
+
+@app.get("/getPlayerInjuriesHistoric/language={language}&id={id}&key={key}")
+def getPlayerInjuriesHistoric(language: str, id: int, key: str):
+    """
+    Cette fonction donne l'historique des blessures du joueur en fonction de la langue renseignée, et l'identifiant TransferMarkt renseigné. La langue doit être les 2 lettres de l'extension de domaine associée, et l'ID doit être sous forme numérique.
+    """ 
+    if getStrInLowerCase(key) == True:
+        return {"error" : keyAttribute+'is not correct'}
+    language = correctDomainExtension(language)
+    domain = 'https://www.transfermarkt.' + language  
+    userAgent = getNewUserAgent()
+    headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
+    injuriesHistoric = [] 
+    urlInj = domain + '/spieler/verletzungen/spieler/' + str(id)
+    response = requests.get(urlInj, headers=headers)
+    if response.ok:
+        soup = BeautifulSoup(response.text, "lxml")
+        table = soup.find('div', {'id' : 'yw1'})
+        oddLines = table.findAll('tr', {'class' : 'odd'})
+        evenLines = table.findAll('tr', {'class' : 'even'})
+        #Calcul de nombre de ligne à analyser sachant que les index sont alternés
+        nbLines = len(oddLines) + len(evenLines)
+        rangeLines = math.trunc(nbLines/2)
+        oddNumber = False
+        if nbLines % 2 == 1:
+            rangeLines += 1
+            oddNumber = True
+        for index in range(rangeLines):
+            #Alternance entre la ligne de class Odd et celle de classe Even
+            for oddOrEven in range(2):
+                if oddOrEven == 0 :
+                    lines = oddLines
+                else:
+                    if (oddNumber == True) and (index == rangeLines - 1):
+                        break 
+                    else: 
+                        lines = evenLines
+                #Liste des TD dont les valeurs de texte correspondent ensuite à chaque case
+                tdList = lines[index].findAll('td')
+                missedClubs = []
+                clubMissedList = tdList[5].findAll('img')
+                for clubOnGoing in clubMissedList :
+                    missedClubs.append(clubOnGoing['alt'])
+                injuriesHistoric.append({
+                    'season' : tdList[0].text,
+                    'injury' : tdList[1].text,
+                    'from' : tdList[2].text,
+                    'until' : tdList[3].text,
+                    'daysDuration' : tdList[4].text,
+                    'club' : missedClubs,
+                    'missedMatch' : tdList[5].text
+                    })    
+    return { 'injuriesHistoric' : injuriesHistoric}
+
+@app.get("/getDashboardClub/language={language}&id={id}&key={key}")
+def getDashboardClub(language: str, id: int, key: str):
     """
    Cette fonction donne le dashboard contenant tous les joueurs en fonction de l'identifiant du club en question et en fonction de la langue. La langue doit être les 2 lettres de l'extension de domaine associée.
     """ 
+    if getStrInLowerCase(key) == True:
+        return {"error" : keyAttribute+'is not correct'}
     language = correctDomainExtension(language)
     domain = 'https://www.transfermarkt.' + language      
     url = domain + '/spieler/startseite/verein/' + str(id)
     #Brouillage des requêtes
-    userAgent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'
-    headers = {'Content-Type': 'text/html', 'user-agent': str(userAgent)}
+    userAgent = getNewUserAgent()
+    headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
     response = requests.get(url, headers=headers)
     playersList = []    
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
         #Nombre de tableaux principaux
-        principalBox = soup.find('div', {'class' : 'box'})
-        
+        principalBox = soup.find('div', {'class' : 'box'})  
         oddLines = principalBox.findAll('tr', {'class' : 'odd'})
         evenLines = principalBox.findAll('tr', {'class' : 'even'})
         #Calcul de nombre de ligne à analyser sachant que les index sont alternés
@@ -723,7 +848,6 @@ def searchClub(language: str, id: int):
             rangeLines += 1
             oddNumber = True
         for index in range(rangeLines):
-            print(str(index) + ' ' + str(rangeLines))
             #Alternance entre la ligne de class Odd et celle de classe Even
             for oddOrEven in range(2):
                 if oddOrEven == 0 :
@@ -736,7 +860,6 @@ def searchClub(language: str, id: int):
                 #Liste des TD dont les valeurs de texte correspondent ensuite à chaque case
                 tdList = lines[index].findAll('td')
                 #Création du json joueur
-                print('FEEE')
                 firstCaseList = tdList[1].text.split('\n\n\n\n\n')
                 #Calcul date de naissance et age
                 rawDateOfBirthList = tdList[5].text
@@ -760,5 +883,7 @@ def searchClub(language: str, id: int):
                     'marketValue' : tdList[7].text
                 })            
         return { 'players' : playersList }
+    else :
+        return{'error' : "This club ID doesn't exists"}
                 
     
