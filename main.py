@@ -306,7 +306,7 @@ def getPlayerInfo(language: str, id: int, key: str):
     url = domain + '/spieler/profil/spieler/' + str(id)
     #Brouillage des requêtes
     userAgent = getNewUserAgent()
-    headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
+    headers = {'Content-Type': 'text/html', 'user-agent': userAgent, 'Access-Control-Allow-Origin': '*'}
     response = requests.get(url, headers=headers)
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
