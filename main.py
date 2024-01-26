@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import random
 from pydantic import BaseModel
 import requests
 from bs4 import BeautifulSoup
 import math
+
 #from multichat.asgi import application
 #python -m uvicorn main:app --reload
 
@@ -77,13 +79,22 @@ def getStrInLowerCase (entry : str) :
         rangeLines = math.trunc(nbLines/2)
         oddNumber = False
     '''
-    if entry not in url.replace('/','-') :
+    if entry not in url.replace('/','-') and len(entry) == 36:
         return True
     else :
         return entry.lower()
 
 keyAttribute = "Ke"+rightDomain+" "   
 app = FastAPI()
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 def accueil():
     return {"Message": "Bienvenue dans l'API de scraping TRANSFERMARKT"}
