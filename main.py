@@ -317,7 +317,7 @@ def getPlayerInfo(language: str, id: int, key: str):
     #Brouillage des requêtes
     userAgent = getNewUserAgent()
     #'Content-Type': 'text/html; charset=utf-8',
-    headers = { 'user-agent': userAgent, 'content-encoding': 'br' ,'content-type': 'application/json' , 'vary': 'Accept-Encoding'}
+    headers = { 'user-agent': userAgent, 'content-encoding': 'br' ,'content-type': 'application/json ; charset=utf-8' , 'vary': 'Accept-Encoding'}
     response = requests.get(url, headers=headers)
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
