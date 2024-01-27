@@ -8,6 +8,33 @@ import math
 
 #from multichat.asgi import application
 #python -m uvicorn main:app --reload
+ 
+def replaceNothingByNone (text : str) :
+    if text == '-' :
+        return None
+    else :
+        if text == '' :
+            return None
+        else :
+            return text
+
+def replaceTripleByNone (text : str) :
+    if text == '---' :
+        return None
+    else :
+        return text
+
+def replaceNAByNone (text : str) :
+    if text == 'N/A' :
+        return None
+    else :
+        return text
+
+def replaceSpaceByNone (text : str) :
+    if len(text) == 1 :
+        return None
+    else :
+        return text
 
 timeCodeFromSite = 'cc097041'
 endUrl = 'be1a'
@@ -187,22 +214,33 @@ def searchPlayer(language: str, name: str, key: str):
                 #Définition du club ou null si retraité
                 if careerEnded == 1 :
                     club = None
+                    clubUrl = None
+                    clubId = None
+                    imageUrl = None
                 else:
                     club = tdList[5].find('img')['title']
+                    clubUrl = domain + tdList[5].find('a')['href']
+                    clubId = clubUrl.split('/')[6]
+                    imageUrl = tdList[5].find('img')['src']
                 #Création du json joueur
                 playersLists.append({
                     'transferMarktId' : linkOnGoing.split('/')[4],
                     'url' : domain + linkOnGoing,
                     'name' : listName[len(listName)-1],
                     'fullName' : fullName,
-                    'imageURL' : lines[index].find('img')['src'],  
-                    'age' : tdList[6].text,  
+                    'imageUrl' : lines[index].find('img')['src'],  
+                    'age' : replaceNothingByNone(tdList[6].text),  
                     'citizenship' : citizenshipList,
                     'isRetired' : careerEnded,
                     'position' : tdList[4].text,
-                    'club' : club,
-                    'marketValue' : tdList[8].text,
-                    'agent' :  tdList[9].text
+                    'club' : { 
+                            "id" : clubId,
+                            "name" : replaceTripleByNone(club),
+                            "url" : clubUrl,
+                            "imageUrl" : imageUrl
+                            },
+                    'marketValue' : replaceNothingByNone(tdList[8].text),   
+                    'agent' :  replaceNothingByNone(tdList[9].text)
                 })
             
         playerOnGoingJson = { 'players' : playersLists }
@@ -293,12 +331,12 @@ def searchClub(language: str, name: str, key: str):
                 clubsList.append({
                     'transferMarktId' : linkOnGoing.split('/')[4],
                     'url' : domain + linkOnGoing,
-                    'imageURL' : lines[index].find('img')['src'],
+                    'imageUrl' : lines[index].find('img')['src'],
                     'name' : lines[index].find('td', {'class' : 'hauptlink'}).text,
-                    'leagueName' : tdList[3].text,
+                    'leagueName' : replaceNothingByNone(tdList[3].text),
                     'country' : tdList[4].find('img')['title'],
                     'staff' : tdList[5].text,
-                    'marketValue' : tdList[6].text,
+                    'marketValue' : replaceNothingByNone(tdList[6].text),
                     'stadiumName' : tdList[8].find('a')['title']
                 })            
         return { 'clubs' : clubsList }
@@ -325,7 +363,7 @@ def getPlayerInfo(language: str, id: int, key: str):
         if rawCellsListDataTable == [] :
             return {"error" : "This player ID doesn't exists."}
         cellsListDataTable = rawCellsListDataTable[0].findAll('span')
-        citizenshipList =[]
+        citizenshipList = []
         specialMarketValue = False
         if language == 'fr':
             originNameTitle = "Nom dans le pays d'origine:"
@@ -587,6 +625,7 @@ def getPlayerInfo(language: str, id: int, key: str):
         marketValue = None
         position = None
         club = None
+        countryOfBirth = None
         for indexCell in range(len(cellsListDataTable)):
             titleOnGoing = cellsListDataTable[indexCell].text
             if titleOnGoing == originNameTitle:
@@ -596,6 +635,7 @@ def getPlayerInfo(language: str, id: int, key: str):
             elif titleOnGoing == placeOfBirthTitle :
                 rawPlaceOfBirth = cellsListDataTable[indexCell+1].text.replace('\n','')
                 placeOfBirth = rawPlaceOfBirth[0 : len(rawPlaceOfBirth)-3]
+                countryOfBirth = cellsListDataTable[indexCell+1].find('img')['title']
             elif titleOnGoing == dateOfBirthTitle :
                 rawDateOfBirthList = cellsListDataTable[indexCell+1].text
                 dateOfBirthList = rawDateOfBirthList.replace("\n", '').split(' (')
@@ -621,10 +661,12 @@ def getPlayerInfo(language: str, id: int, key: str):
                 if "https://tmssl.akamaized.net/images/wappen/small/123.png?lm=1456997286" in str(cellsListDataTable[indexCell+1].find('img')['srcset']) :
                     careerEnded = True
                     club = None
+                    clubId = None
                 else:
                     careerEnded = False
                     rawClub = cellsListDataTable[indexCell+1].text.replace('\n\n\n\n', '')
                     club = rawClub[0 : len(rawClub)-1]
+                    clubId = cellsListDataTable[indexCell+1].find('a')['href'].split('/')[4]
             elif titleOnGoing == inTeamSinceTitle :
                 inTeamSince = cellsListDataTable[indexCell+1].text.replace('\n                            ', '').replace('                        ','')
             elif titleOnGoing == contractUntilTitle :
@@ -671,29 +713,34 @@ def getPlayerInfo(language: str, id: int, key: str):
                 'name' : name,
                 'description' : description,
                 'fullName' : fullName.replace('\n',''),
-                'imageURL' : soup.find('img', {'class' : 'data-header__profile-image'})['src'],
-                'dateOfBirth' : dateOfBirth,
-                'placeOfBirth' : placeOfBirth,
+                'imageUrl' : soup.find('img', {'class' : 'data-header__profile-image'})['src'],
+                'dateOfBirth' : replaceNAByNone(dateOfBirth),
+                'placeOfBirth' : {
+                    'city' : placeOfBirth,
+                    'country' : countryOfBirth
+                    },
                 'age' : age,
-                'height' : height,
+                'height' : replaceNAByNone(height),
                 'citizenship' : citizenshipList,
                 'isRetired' : careerEnded,
                 'position' : position,
-                'foot' : foot,
-                'shirtNumber' : shirtNumber,
-                'club' : club,
+                'foot' : replaceNAByNone(foot),
+                'shirtNumber' : replaceNothingByNone(shirtNumber),
+                'club' : {
+                    'id' : clubId,
+                    'name' : club,
+                    'joined' : replaceNothingByNone(inTeamSince),
+                    'contractExpires' : replaceNothingByNone(contractUntil)
+                    },
                 'marketValue' : marketValue,
                 'agent' : agent,
                 'outfitter' : outfitter,
                 'socialMedia' : socialMedia,
                 'updatedAt' : None,
                 'originName' : originName,
-                'inTeamSince' : inTeamSince,
-                'contractUntil' : contractUntil,
                 'lastProlDate' : lastProlDate,
                 }
- 
-
+    
 @app.get("/getPlayerStats/language={language}&id={id}&key={key}")
 def getPlayerStats(language: str, id: int, key: str):
     """
@@ -738,7 +785,9 @@ def getPlayerStats(language: str, id: int, key: str):
                 competition = tdList[2].text
                 if tdList[3].find('img') == None :
                     return {"error" : "This player ID doesn't exists."}
-                club = tdList[3].find('img')['title']
+                club = tdList[3].find('img')['alt']
+                clubImageUrl = tdList[3].find('img')['src']
+                clubId = tdList[3].find('a')['href'].split('/')[4]
                 matchs = tdList[4].text
                 buts = tdList[5].text
                 if len(tdList) == 10 :
@@ -756,23 +805,30 @@ def getPlayerStats(language: str, id: int, key: str):
                     matchsWithoutButsConceded = None
                 rawYellowCards = rowCardsList[0]
                 yellowCards = rawYellowCards[0 : len(rawYellowCards)-1]
+                yellowCards = replaceNothingByNone(yellowCards)
                 rawYellowCardsBecameRed = rowCardsList[1]
                 yellowCardsBecameRed = rawYellowCardsBecameRed[1 : len(rawYellowCardsBecameRed)-1]
+                yellowCardsBecameRed = replaceNothingByNone(yellowCardsBecameRed)
                 rawRedCards = rowCardsList[2]
                 redCards = rawRedCards[1 : len(rawRedCards)]
+                redCards = replaceNothingByNone(redCards)
                 stats.append({
                     'season' : season,
                     'competition' : competition,
-                    'club' : club,
+                    'club' : {
+                        'id' : clubId,
+                        'name' : club,
+                        'imageUrl' : clubImageUrl
+                        },  
                     'matchs' : matchs,
-                    'buts' : buts,
-                    'decisivePass' : decisivePass,
+                    'buts' : replaceNothingByNone(buts),
+                    'decisivePass' :replaceNothingByNone(decisivePass),
                     'yellowCards' : yellowCards,
                     'yellowCardsBecameRed' : yellowCardsBecameRed,
                     'redCards' : redCards,
                     'butsConceded' : butsConceded,
                     'matchsWithoutButsConceded' : matchsWithoutButsConceded,
-                    'minutesPlayed' : minutesPlayed,
+                    'minutesPlayed' : replaceNothingByNone(minutesPlayed),
                     })  
     return { 'stats' : stats}
 
@@ -794,6 +850,8 @@ def getPlayerInjuriesHistoric(language: str, id: int, key: str):
     if response.ok:
         soup = BeautifulSoup(response.text, "lxml")
         table = soup.find('div', {'id' : 'yw1'})
+        if table == None : 
+            return { 'injuriesHistoric' : []}
         oddLines = table.findAll('tr', {'class' : 'odd'})
         evenLines = table.findAll('tr', {'class' : 'even'})
         #Calcul de nombre de ligne à analyser sachant que les index sont alternés
@@ -816,16 +874,16 @@ def getPlayerInjuriesHistoric(language: str, id: int, key: str):
                 #Liste des TD dont les valeurs de texte correspondent ensuite à chaque case
                 tdList = lines[index].findAll('td')
                 missedClubs = []
-                clubMissedList = tdList[5].findAll('img')
+                clubMissedList = tdList[5].findAll('a')
                 for clubOnGoing in clubMissedList :
-                    missedClubs.append(clubOnGoing['alt'])
+                    missedClubs.append({'id' : clubOnGoing['href'].split("/")[4] ,'name' : clubOnGoing.find('img')['alt'], "imageUrl" : clubOnGoing.find('img')['src'] })
                 injuriesHistoric.append({
                     'season' : tdList[0].text,
                     'injury' : tdList[1].text,
                     'from' : tdList[2].text,
                     'until' : tdList[3].text,
                     'daysDuration' : tdList[4].text,
-                    'club' : missedClubs,
+                    'missedClubs' : missedClubs,
                     'missedMatch' : tdList[5].text
                     })    
     return { 'injuriesHistoric' : injuriesHistoric}
@@ -839,7 +897,7 @@ def getDashboardClub(language: str, id: int, key: str):
         return {"error" : keyAttribute+'is not correct'}
     language = correctDomainExtension(language)
     domain = 'https://www.transfermarkt.' + language      
-    url = domain + '/spieler/startseite/verein/' + str(id)
+    url = domain + '/spieler/kader/verein/' + str(id) + '/plus/1'
     #Brouillage des requêtes
     userAgent = getNewUserAgent()
     headers = {'Content-Type': 'text/html', 'user-agent': userAgent}
@@ -876,24 +934,98 @@ def getDashboardClub(language: str, id: int, key: str):
                 rawDateOfBirthList = tdList[5].text
                 dateOfBirthList = rawDateOfBirthList.split(' (')
                 dateOfBirth = dateOfBirthList[0]
-                age = dateOfBirthList[1]
+                age = dateOfBirthList[1].replace(')','')
                 #Calcul des nationalités
                 citizenshipList = []
                 imgCitizenshipList = tdList[6].findAll('img')
                 for element in imgCitizenshipList:
-                    citizenshipList.append(element['title'])
+                    citizenshipList.append(element['title'])  
+                height = replaceNothingByNone(tdList[7].text)  
+                foot = replaceNothingByNone(tdList[8].text)  
+                inTeamSince = replaceNothingByNone(tdList[9].text)
+                print(tdList[10])                
+                if tdList[10].find('a') == None :
+                    print('eEEE')
+                    clubBeforeActual = {
+                        'clubId' :  None,
+                        'clubName' : None,
+                        'imageUrl' :  None
+                    } 
+                else : 
+                    if tdList[10].find('a')['href'].split('/')[4] == '515' :                    
+                        clubBeforeActual = {
+                            'clubId' :  None,
+                            'clubName' : None,
+                            'imageUrl' :  None
+                        } 
+                    else : 
+                        clubBeforeActual = {
+                            'clubId' :  tdList[10].find('a')['href'].split('/')[4],
+                            'clubName' : tdList[10].find('img')['title'],
+                            'imageUrl' :  tdList[10].find('img')['src']
+                        }  
+                contractUntil = replaceNothingByNone(tdList[11].text)
+                marketValue = replaceNothingByNone(tdList[12].text)
+                fullNameFromBigHeader = soup.find('h1', {'class' : 'data-header__headline-wrapper'}).text
+                clubName = fullNameFromBigHeader.replace('\n            ', '').replace('        ','')
+                playerId = tdList[3].find('a')['href'].split('/')[4]
+                playerUrl = domain + '/spieler/profil/spieler/' + playerId
                 playersList.append({
-                    'shirtNumber' : tdList[0].text,
-                    'playerName' : firstCaseList[0].replace('\n\n\n\n \n\n\n                ','').replace('            ',''),
-                    'position' : firstCaseList[1].replace('        \n\n\n','').replace('            ',''),
-                    'playerUrl' : domain + tdList[1].find('a')['href'],
-                    'playerImageUrl' : str(tdList[1].find('tr').find('img')['data-src']),
-                    'dateOfBirth' : dateOfBirth,
-                    'age' : age.replace(')',''),
+                    'transferMarktId' : playerId,
+                    'url' : playerUrl,
+                    'fullName' : firstCaseList[0].replace('\n\n\n\n \n\n\n                ','').replace('            ',''),
+                    'imageUrl' : str(tdList[1].find('tr').find('img')['data-src']),
+                    'dateOfBirth' : replaceNAByNone(dateOfBirth),
+                    'age' : age,
+                    'height' : height,
                     'citizenship' : citizenshipList,
-                    'marketValue' : tdList[7].text
-                })            
-        return { 'players' : playersList }
+                    'isRetired' : False,
+                    'position' : firstCaseList[1].replace('        \n\n\n','').replace('            ',''),
+                    'foot' : replaceSpaceByNone(foot),
+                    'shirtNumber' : replaceNothingByNone(tdList[0].text),
+                    'club' : {
+                        'id' : id,
+                        'name' : clubName,
+                        'joined' : inTeamSince,
+                        'contractExpires' : contractUntil
+                        },
+                    'marketValue' : marketValue,
+                    'clubBeforeActual' : clubBeforeActual                   
+                }) 
+        liList =   soup.find('div', {'class' : 'data-header__details'}).findAll('li')
+        effectiveNumber = liList[0].text.split(':')[1].replace('\n                    \n                        ','').replace('                    \n', '')
+        ageAverage = liList[1].text.split(':')[1].replace('\n                    \n                        ','').replace('                    \n', '')
+        nbStrangerPlayers = liList[2].find('a').text
+        playersInNationalTeam = liList[3].find('a').text
+        if liList[4].find('a') == None :
+            stadium = None
+        else :
+            stadium = liList[4].find('a').text
+        actualBalanceTransferts = liList[5].find('a').text
+        rawMarketValue = soup.find('div', {'class' : 'data-header__box--small'})
+        if rawMarketValue == None :
+            marketValueClub = None
+        else :
+            marketValueClub = rawMarketValue.find('a').text.split(' ')[0] + ' ' + rawMarketValue.find('span').text
+        if soup.find('div', {'class' : 'data-header__club-info'}) == None :
+            leagueName = None
+        else :
+            leagueName = soup.find('div', {'class' : 'data-header__club-info'}).find('a').text.replace('\n                        ','').replace('                    ', '')
+        return {'club' : {
+                        'id' : id,
+                        'name' : clubName,
+                        'url' : url,
+                        'imageUrl' : soup.find('div', {'class' : 'data-header__profile-container'}).find('img')['src'],
+                        'leagueName' : leagueName,
+                        'marketValue' : marketValueClub,
+                        'stadiumName' : stadium,
+                        'effectiveNumber' : effectiveNumber,
+                        'ageAverage' : ageAverage,
+                        'nbStrangerPlayers' : nbStrangerPlayers,
+                        'playersInNationalTeam' : playersInNationalTeam,
+                        'actualBalanceTransferts' : actualBalanceTransferts
+                        },
+                'players' : playersList }
     else :
         return{'error' : "This club ID doesn't exists"}
                 
